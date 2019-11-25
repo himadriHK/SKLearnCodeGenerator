@@ -1,15 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <root>
-  <Algorithms>
-    <Algorithm name="Linear Regression" type="Regression" section="LinearRegression"></Algorithm>
-    <Algorithm name="Logistic Regression" type="Regression" section="LogisticRegression"></Algorithm>
-    <Algorithm name="Support Vector Machine" type="Classification" section="SVM"></Algorithm>
-  </Algorithms>
-  <Regression>
-    <LinearRegression import="linear_model.LinearRegression" class="LinearRegression" default_params=""/>
-    <LogisticRegression import="linear_model.LogisticRegression" class="LogisticRegression" default_params=""/>
-  </Regression>
-  <Classification>
-    <SVM import="svm.svc" class="SVC" default_params=""/>
-  </Classification>
+	<AlgorithmTypes>
+		<Type name="Regression"/>
+		<Type name="Classification"/>
+		<Type name="Clustering"/>
+		<Type name="DimensionalityReduction"></Type>
+	</AlgorithmTypes>
+	<!--<Algorithms>
+		<Algorithm name="Linear Regression" type="Regression" section="LinearRegression"/>
+		<Algorithm name="Logistic Regression" type="Regression" section="LogisticRegression"/>
+		<Algorithm name="Support Vector Machine" type="Classification" section="SVM"/>
+	</Algorithms>-->
+	<Regression>
+		<LinearRegression import="linear_model.LinearRegression" class="LinearRegression" default_params=""/>
+		<LogisticRegression import="linear_model.LogisticRegression" class="LogisticRegression" default_params=""/>
+	</Regression>
+	<Classification>
+		<SVM import="svm.svc" class="SVC" default_params=""/>
+	</Classification>
 </root>
