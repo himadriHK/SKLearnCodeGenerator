@@ -83,22 +83,35 @@ import numpy as np
 ";
 			string algo_class_import = $@"
 #import required class for the algorithm
-import algoSettings[modelType.SelectedItem.ToString()][{algorithmName.SelectedIndex}].Import";
+{algoSettings[modelType.SelectedItem.ToString()][algorithmName.SelectedIndex].Import}";
 
 			string load_data = $@"
-training_data = pd.read_csv({Path.GetFileName(inputFile.Text)})
+training_data = pd.read_csv(""{inputFile.Text}"")
 ";
 
 			string data_preprocessing = dataPreProcessScript.Text;
 
 			string get_x_train_y_train = $@"
-x_train = training_data[training_data.columns[training_data.columns!={targetVariableName.Text}] ]
-y_train = training_data[{targetVariableName.Text}]
+x_train = training_data[training_data.columns[training_data.columns!='{targetVariableName.Text}'] ]
+y_train = training_data['{targetVariableName.Text}']
 ";
 			string train_model = $@"
 model = {algoSettings[modelType.SelectedItem.ToString()][algorithmName.SelectedIndex].Class}({modelParams.Text})
 model.fit(x_train,y_train)
+print(model.score(x_train,y_train))
 ";
+            string dirPath = Path.GetDirectoryName(inputFile.Text);
+            using (StreamWriter sw = new StreamWriter(File.Create(dirPath + "\\pythonscript.py"),Encoding.ASCII))
+            {
+                sw.Write(common_imports);
+                sw.Write(algo_class_import);
+                sw.Write(load_data);
+                sw.Write(data_preprocessing);
+                sw.Write(get_x_train_y_train);
+                sw.Write(train_model);
+            }
+
+            MessageBox.Show(executeInPython('"'+dirPath + "\\pythonscript.py"+'"'));
 		}
 
 		private string executeInPython(string pythonScriptPath)
@@ -108,13 +121,18 @@ model.fit(x_train,y_train)
 				using (Process myProcess = new Process())
 				{
 					myProcess.StartInfo.UseShellExecute = false;
-					myProcess.StartInfo.FileName = @"C:\Users\6105827\AppData\Local\Programs\Python\Python37\python.exe";
+					myProcess.StartInfo.FileName = @"C:\Program Files (x86)\Microsoft Visual Studio\Shared\Python37_64\python.exe";
 					myProcess.StartInfo.CreateNoWindow = true;
 					myProcess.StartInfo.RedirectStandardOutput = true;
 					myProcess.StartInfo.RedirectStandardError = true;
 					myProcess.StartInfo.Arguments = pythonScriptPath;
 					myProcess.Start();
-					return myProcess.StandardOutput.ReadToEnd();
+                    
+                    myProcess.WaitForExit();
+                    string result1 = myProcess.StandardError.ReadToEnd();
+                    string result2 = myProcess.StandardOutput.ReadToEnd();
+                    myProcess.StandardError.ReadToEnd();
+                    return result1 +"\n"+result2;
 				}
 			}
 			catch (Exception e)
