@@ -12,8 +12,8 @@
 		<Algorithm name="Support Vector Machine" type="Classification" section="SVM"/>
 	</Algorithms>-->
 	<Regression>
-		<LinearRegression import="linear_model.LinearRegression" class="LinearRegression" default_params=""/>
-		<LogisticRegression import="linear_model.LogisticRegression" class="LogisticRegression" default_params=""/>
+		<LinearRegression import="sklearn.linear_model" class="LinearRegression" default_params=""/>
+		<LogisticRegression import="sklearn.linear_model" class="LogisticRegression" default_params=""/>
 	</Regression>
 	<Classification>
 		<SVM import="svm.svc" class="SVC" default_params=""/>
