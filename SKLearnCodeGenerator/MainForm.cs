@@ -86,20 +86,32 @@ import numpy as np
 {algoSettings[modelType.SelectedItem.ToString()][algorithmName.SelectedIndex].Import}";
 
 			string load_data = $@"
-training_data = pd.read_csv(""{inputFile.Text}"")
+training_data = pd.read_csv(""{inputFile.Text.Replace("\\","\\\\")}"")
 ";
 
 			string data_preprocessing = dataPreProcessScript.Text;
 
 			string get_x_train_y_train = $@"
-x_train = training_data[training_data.columns[training_data.columns!='{targetVariableName.Text}'] ]
-y_train = training_data['{targetVariableName.Text}']
+X = training_data[training_data.columns[training_data.columns!='{targetVariableName.Text}'] ]
+Y = training_data['{targetVariableName.Text}']
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(X, Y, shuffle=True)
 ";
 			string train_model = $@"
 model = {algoSettings[modelType.SelectedItem.ToString()][algorithmName.SelectedIndex].Class}({modelParams.Text})
 model.fit(x_train,y_train)
-print(model.score(x_train,y_train))
+y_pred = model.predict(x_test)
 ";
+            string metric = "";
+            switch(modelType.SelectedItem.ToString())
+            {
+                case "Regression":
+                    metric = PythonCodeTemplates.RegressionMetric("y_test", "y_pred");
+                    break;
+                case "Classification":
+                    metric = PythonCodeTemplates.ClassificationMetric("y_test", "y_pred");
+                    break;
+            }
             string dirPath = Path.GetDirectoryName(inputFile.Text);
             using (StreamWriter sw = new StreamWriter(File.Create(dirPath + "\\pythonscript.py"),Encoding.ASCII))
             {
@@ -109,9 +121,11 @@ print(model.score(x_train,y_train))
                 sw.Write(data_preprocessing);
                 sw.Write(get_x_train_y_train);
                 sw.Write(train_model);
+                sw.Write(metric);
             }
 
-            MessageBox.Show(executeInPython('"'+dirPath + "\\pythonscript.py"+'"'));
+            previousMetric.Text = currentMetric.Text;
+            currentMetric.Text = executeInPython('"' + dirPath + "\\pythonscript.py" + '"');
 		}
 
 		private string executeInPython(string pythonScriptPath)
@@ -140,5 +154,10 @@ print(model.score(x_train,y_train))
 				return e.Message;
 			}
 		}
-	}
+
+        private void algorithmName_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            modelParams.Text = algoSettings[modelType.SelectedItem.ToString()][algorithmName.SelectedIndex].DefaultParams;
+        }
+    }
 }
